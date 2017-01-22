@@ -4,14 +4,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'crossbar-http/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'crossbar_http'
+  spec.name          = 'crossbar-http'
   spec.version       = Crossbar::HTTP::VERSION
   spec.authors       = ['Eric Chapman']
   spec.email         = ['eric.chappy@gmail.com']
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Crossbar.io HTTP Bridge Ruby Client}
+  spec.description   = %q{}
+  spec.homepage      = 'https://github.com/ericchapman/ruby-crossbar-http'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
