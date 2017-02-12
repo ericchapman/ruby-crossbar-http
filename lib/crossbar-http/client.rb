@@ -133,11 +133,11 @@ module Crossbar
         self.sequence += 1
 
         # Create the request
-        req = Net::HTTP::Post.new(uri)
-        req['Content-Type'] = 'application/json'
-        req.body = encoded_params
+        res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+          req = Net::HTTP::Post.new(uri)
+          req['Content-Type'] = 'application/json'
+          req.body = encoded_params
 
-        res = Net::HTTP.start(uri.hostname, uri.port) do |http|
           http.request(req)
         end
 
