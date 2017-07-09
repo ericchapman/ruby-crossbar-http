@@ -1,6 +1,8 @@
 # Crossbar HTTP
 
 [![Gem Version](https://badge.fury.io/rb/crossbar-http.svg)](https://badge.fury.io/rb/crossbar-http)
+[![Circle CI](https://circleci.com/gh/ericchapman/ruby-crossbar-http/tree/master.svg?&style=shield&circle-token=d1d127456bc9210c10f34db5b6fd573fb228bed7)](https://circleci.com/gh/ericchapman/ruby-crossbar-http/tree/master)
+[![Codecov](https://img.shields.io/codecov/c/github/ericchapman/ruby-crossbar-http/master.svg)](https://codecov.io/github/ericchapman/ruby-crossbar-http)
 
 Module that provides methods for accessing Crossbar.io HTTP Bridge Services
 
