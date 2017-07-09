@@ -88,10 +88,9 @@ module Crossbar
       # Reference code is at: https://github.com/crossbario/crossbar/blob/master/crossbar/adapter/rest/common.py
       # @param body [Hash]
       # @return (signature, nonce, timestamp)
-      def _compute_signature(body, nonce: nil, timestamp: nil)
-
-        timestamp ||= Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
-        nonce ||= rand(0..2**53)
+      def _compute_signature(body)
+        timestamp = self.class._get_timestamp
+        nonce = self.class._get_nonce
 
         # Compute signature: HMAC[SHA256]_{secret} (key | timestamp | seq | nonce | body) => signature
         hm = OpenSSL::HMAC.new(self.secret, OpenSSL::Digest::SHA256.new)
@@ -105,6 +104,17 @@ module Crossbar
         return signature, nonce, timestamp
       end
 
+      def self._get_timestamp
+        Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+      end
+
+      def self._get_nonce
+        rand(0..2**53)
+      end
+
+      # Performs the API call
+      # @param json_params [Hash,nil] The parameters that will make up the body of the request
+      # @return [Hash] The response from the server
       def _make_api_call(json_params=nil)
 
         puts "Crossbar::HTTP - Request: POST #{url}" if self.verbose
@@ -132,11 +142,20 @@ module Crossbar
         # TODO: Not sure what this is supposed to be but this works
         self.sequence += 1
 
+        self._api_call uri, encoded_params
+      end
+
+      # This method makes tha API call.  It is a class method so it can be more easily stubbed
+      # for testing
+      # @param uri [URI] The uri of the request
+      # @param body [String] The body of the request
+      # @return [Hash] The response from the server
+      def _api_call(uri, body=nil)
         # Create the request
         res = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => uri.scheme == 'https') do |http|
           req = Net::HTTP::Post.new(uri)
           req['Content-Type'] = 'application/json'
-          req.body = encoded_params
+          req.body = body
 
           http.request(req)
         end
@@ -148,7 +167,6 @@ module Crossbar
           else
             raise "Crossbar::HTTP - Code: #{res.code}, Error: #{res.message}"
         end
-
       end
     end
   end
