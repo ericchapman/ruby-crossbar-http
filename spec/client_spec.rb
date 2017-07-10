@@ -7,6 +7,39 @@ describe Crossbar::HTTP::Client do
   let(:args)          { [1, 2, 3] }
   let(:kwargs)        { { param1: true, param2: false } }
 
+  context 'json_custom' do
+    it 'changes a few different types of objects' do
+
+      pre_serialize = lambda { |value|
+        if value.is_a? Date
+          return value.strftime('%Y/%m/%d')
+        elsif value.is_a? Integer
+          return value.to_s
+        end
+      }
+
+      client = Crossbar::HTTP::Client.new(url, verbose: false, pre_serialize: pre_serialize)
+      stub_api_call client
+      kwargs = {
+          test_array: [1, 2, 3],
+          test_dict: {
+              test_date: Date.strptime('2017-01-22T01:53:41.778Z', '%Y-%m-%dT%H:%M:%S.%LZ')
+          },
+          test_int: 2
+      }
+      response = client.call('com.example.procedure', **kwargs)
+
+      expected = {
+          test_array: ['1', '2', '3'],
+          test_dict: {
+              test_date: '2017/01/22'
+          },
+          test_int: '2'
+      }
+      expect(response[:body][:kwargs]).to eq(expected)
+    end
+  end
+
   context 'public methods' do
     before(:each) do
       stub_timestamp

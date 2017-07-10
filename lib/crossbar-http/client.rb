@@ -33,14 +33,15 @@ require 'json'
 module Crossbar
   module HTTP
     class Client
-      attr_accessor :url, :key, :secret, :verbose, :sequence
+      attr_accessor :url, :key, :secret, :verbose, :sequence, :pre_serialize
 
       # Initializes the client
       # @param url [String] - The url of the router's HTTP bridge
       # @param key [String] - The key (optional)
       # @param secret [String] - The secret (optional)
       # @param verbose [Bool] - 'True' if you want debug messages printed
-      def initialize(url, key: nil, secret: nil, verbose: false)
+      # @param pre_serialize [lambda] - Lambda to format the data
+      def initialize(url, key: nil, secret: nil, verbose: false, pre_serialize: nil)
 
         raise 'The url can not be nil' unless url != nil
 
@@ -48,6 +49,7 @@ module Crossbar
         self.key = key
         self.secret = secret
         self.verbose = verbose
+        self.pre_serialize = pre_serialize
         self.sequence = 1
       end
 
@@ -81,6 +83,26 @@ module Crossbar
         }
 
         self._make_api_call(params)
+      end
+
+      # Parses the params to pre-serialize the overrides
+      def _parse_params(params)
+
+        if params.is_a? Hash
+          return_value = {}
+          params.each do |key, value|
+            return_value[key] = self._parse_params(value)
+          end
+        elsif params.is_a? Array
+          return_value = []
+          params.each_index {|i|
+            return_value.push(self._parse_params (params[i]))
+          }
+        else
+          return_value = self.pre_serialize.call(params) || params
+        end
+
+        return_value
       end
 
       # Computes the signature.
@@ -119,7 +141,13 @@ module Crossbar
 
         puts "Crossbar::HTTP - Request: POST #{url}" if self.verbose
 
-        encoded_params = (json_params != nil) ? JSON.generate(json_params) : nil
+        encoded_params = nil
+        if json_params != nil
+          if self.pre_serialize&.is_a? Proc
+            json_params = self._parse_params json_params
+          end
+          encoded_params = JSON.generate(json_params)
+        end
 
         puts "Crossbar::HTTP - Params: #{encoded_params}" if encoded_params != nil and self.verbose
 
