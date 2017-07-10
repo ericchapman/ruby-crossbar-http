@@ -143,7 +143,7 @@ module Crossbar
 
         encoded_params = nil
         if json_params != nil
-          if self.pre_serialize&.is_a? Proc
+          if self.pre_serialize != nil and self.pre_serialize.is_a? Proc
             json_params = self._parse_params json_params
           end
           encoded_params = JSON.generate(json_params)

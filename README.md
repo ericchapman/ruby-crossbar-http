@@ -8,6 +8,8 @@ Module that provides methods for accessing Crossbar.io HTTP Bridge Services
 
 ## Revision History
 
+  - v0.1.3:
+    - Removed dependency on Ruby 2.3
   - v0.1.2:
     - Added the ability to override the date serialization
   - v0.1.1:
